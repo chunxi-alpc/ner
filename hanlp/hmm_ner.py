@@ -1,9 +1,8 @@
 from pyhanlp import *
 import os
-from pyhanlp.static import download, remove_file, HANLP_DATA_PATH
 
 # 指定 PKU 语料库
-PKU98 = '../data/pku98'
+PKU98 = '../../data/pku98'
 PKU199801 = os.path.join(PKU98, '199801.txt')
 PKU199801_TRAIN = os.path.join(PKU98, '199801-train.txt')
 PKU199801_TEST = os.path.join(PKU98, '199801-test.txt')

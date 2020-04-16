@@ -4,7 +4,6 @@ import re
 import os
 
 
-pre()
 wordDict = acquireDict(
     ['data\\test.char.bmes', 'data\\train.char.bmes'])
 

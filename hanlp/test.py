@@ -1,45 +1,28 @@
-
 from pyhanlp import *
-import os
-from pyhanlp.static import download, remove_file, HANLP_DATA_PATH
+"""
+HanLP开启命名实体识别
 
-# 指定 PKU 语料库
-PKU98 = 'd:/python3/lib/site-packages/pyhanlp/static/data/test/pku98'
-PKU199801 = os.path.join(PKU98, '199801.txt')
-PKU199801_TRAIN = os.path.join(PKU98, '199801-train.txt')
-PKU199801_TEST = os.path.join(PKU98, '199801-test.txt')
-POS_MODEL = os.path.join(PKU98, 'pos.bin')
-NER_MODEL = os.path.join(PKU98, 'ner.bin')
+"""
 
-
-# ===============================================
-# 以下开始 HMM 命名实体识别
-
-HMMNERecognizer = JClass('com.hankcs.hanlp.model.hmm.HMMNERecognizer')
-AbstractLexicalAnalyzer = JClass(
-    'com.hankcs.hanlp.tokenizer.lexical.AbstractLexicalAnalyzer')
-PerceptronSegmenter = JClass(
-    'com.hankcs.hanlp.model.perceptron.PerceptronSegmenter')
-PerceptronPOSTagger = JClass(
-    'com.hankcs.hanlp.model.perceptron.PerceptronPOSTagger')
-Utility = JClass('com.hankcs.hanlp.model.perceptron.utility.Utility')
+# 音译人名示例
+CRFnewSegment = HanLP.newSegment("crf")
+term_list = CRFnewSegment.seg("译智社的田丰要说的是这只是一个hanlp命名实体识别的例子")
+print(term_list)
 
 
-def train(corpus):
-    recognizer = HMMNERecognizer()
-    recognizer.train(corpus)
-    return recognizer
+print("\n========== 命名实体开启与关闭对比试验 ==========\n")
+sentences = [
+    "北川景子参演了林诣彬导演的《速度与激情3》",
 
+]
+# 通过HanLP 进行全局设置,但是部分分词器本身可能不支持某项功能
+# 部分分词器本身对某些命名实体识别效果较好
 
-def test(recognizer):
-    # 包装了感知机分词器和词性标注器的词法分析器
-    analyzer = AbstractLexicalAnalyzer(
-        PerceptronSegmenter(), PerceptronPOSTagger(), recognizer)
-    print(analyzer.analyze("华北电力公司董事长谭旭光和秘书胡花蕊来到美国纽约现代艺术博物馆参观"))
-    scores = Utility.evaluateNER(recognizer, PKU199801_TEST)
-    Utility.printNERScore(scores)
-
-
-if __name__ == '__main__':
-    recognizer = train(PKU199801_TRAIN)
-    test(recognizer)
+viterbiNewSegment = HanLP.newSegment("viterbi")
+CRFnewSegment_new = HanLP.newSegment("crf")
+# segSentence
+# CRFnewSegment_2.seg2sentence(sentences)
+for sentence in sentences:
+    print("crf : ", CRFnewSegment.seg(sentence))
+    print("crf_new : ", CRFnewSegment_new.seg(sentence))
+    print("viterbi : ", viterbiNewSegment.seg(sentence))

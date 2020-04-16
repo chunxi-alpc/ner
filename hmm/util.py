@@ -225,8 +225,6 @@ def pre_Boson():
         location:  4581
         organization:  2672
     """
-    trainfile.close()
-    testfile.close()
 
 
 def find_all(sub, s):
@@ -242,101 +240,23 @@ def find_all(sub, s):
         return -1
 
 
-def pre_train():
-    trainfile = open('data\\train.char.bmes', 'w',
-                     encoding='utf-8', errors='ignore')
-    testfile = open('data\\test.char.bmes', 'w',
-                    encoding='utf-8', errors='ignore')
-    PKU98 = '../../data/pku98'
-    PKU199801_TRAIN = os.path.join(PKU98, '199801-train.txt')
-    PKU199801_TEST = os.path.join(PKU98, '199801-test.txt')
-    article = ''
-    org_mulpat = re.compile('\[([^]]*?)]/nt')
-    org_pat = re.compile('[\[\s](\S*?)/nt')
-    name_pat = re.compile('[\[\s](\S*?)/nr')
-    time_mulpat = re.compile('\[([^]]*?)]/t')
-    time_pat = re.compile('[\[\s](\S*?)/t')
-    loc_mulpat = re.compile('\[([^]]*?)]/ns')
-    loc_pat = re.compile('[\[\s](\S*?)/ns')
-    with open(PKU199801_TRAIN, 'r', encoding='UTF-8') as ff:
+def origin(fin, fout):
+    with open(fin, 'r', encoding='UTF-8') as ff:
         file = ff.readlines()
-
         for line in file:
-            org_list = []
-            loc_list = []
-            time_list = []
-            name_list = []
-
-            article += line
-            org = org_pat.findall(line)
-            for each in org:
-                org_list.append(re.sub('[a-z\s/\[\]]+', '', each))
-            org = org_mulpat.findall(line)
-            for each in org:
-                org_list.append(re.sub('[a-z\s/\[\]]+', '', each))
-            org_list = list(set(org_list))
-            loc = org_pat.findall(line)
-            for each in loc:
-                loc_list.append(re.sub('[a-z\s/\[\]]+', '', each))
-            loc = loc_mulpat.findall(line)
-            for each in loc:
-                loc_list.append(re.sub('[a-z\s/\[\]]+', '', each))
-            loc_list = list(set(loc_list))
-
-            time = time_pat.findall(line)
-            for each in time:
-                time_list.append(re.sub('[a-z\s/\[\]]+', '', each))
-            time = time_mulpat.findall(line)
-            for each in time:
-                time_list.append(re.sub('[a-z\s/\[\]]+', '', each))
-            time_list = list(set(time_list))
-            name = name_pat.findall(line)
-            for each in name:
-                name_list.append(re.sub('[a-z\s/\[\]]+', '', each))
-            name_list = list(set(name_list))
-            article = re.sub('[a-z\s/\[\]]+', '', article)
-            orglist_B = []
-            loclist_B = []
-            timelist_B = []
-            namelist_B = []
-            E = {}
-            for w in org_list:
-                indexlist = find_all(w, article)
-                l = len(w)
-                for b in indexlist:
-                    orglist_B.append(b)
-                    E[b] = b+l
-            for w in loc_list:
-                indexlist = find_all(w, article)
-                l = len(w)
-                for b in indexlist:
-                    loclist_B.append(b)
-                    E[b] = b+l
-            for w in time_list:
-                indexlist = find_all(w, article)
-                l = len(w)
-                for b in indexlist:
-                    timelist_B.append(b)
-                    E[b] = b+l
-            for w in name_list:
-                indexlist = find_all(w, article)
-                l = len(w)
-                for b in indexlist:
-                    namelist_B.append(b)
-                    E[b] = b+l
-            BMEOS(article, ['TIME', 'LOC', 'ORG', 'NAME', ],
-                  [timelist_B, loclist_B, orglist_B, namelist_B], E, trainfile)
+            sentence = re.sub('[a-z\s/\[\]]+', '', line)
+            fout.write(sentence)
 
 
 def pre(fin, fout):
     article = ''
-    org_mulpat = re.compile('\[([^]]*?)]/nt')
-    org_pat = re.compile('[\[\s](\S*?)/nt')
-    name_pat = re.compile('[\[\s](\S*?)/nr')
-    time_mulpat = re.compile('\[([^]]*?)]/t')
-    time_pat = re.compile('[\[\s](\S*?)/t')
-    loc_mulpat = re.compile('\[([^]]*?)]/ns')
-    loc_pat = re.compile('[\[\s](\S*?)/ns')
+    org_mulpat = re.compile('\[([^]]*?)]/nt[a-z]*')
+    org_pat = re.compile('[\[\s](\S*?)/nt[a-z]*')
+    name_pat = re.compile('[\[\s](\S*?)/nr[a-z]*')
+    time_mulpat = re.compile('\[([^]]*?)]/t[a-z]*')
+    time_pat = re.compile('[\[\s](\S*?)/t[a-z]*')
+    loc_mulpat = re.compile('\[([^]]*?)]/ns[a-z]*')
+    loc_pat = re.compile('[\[\s](\S*?)/ns[a-z]*')
     with open(fin, 'r', encoding='UTF-8') as ff:
         file = ff.readlines()
         for line in file:
@@ -371,6 +291,7 @@ def pre(fin, fout):
                 name_list.append(re.sub('[a-z\s/\[\]]+', '', each))
             name_list = list(set(name_list))
             article = re.sub('[a-z\s/\[\]]+', '', article)
+
             orglist_B = []
             loclist_B = []
             timelist_B = []
@@ -404,6 +325,8 @@ def pre(fin, fout):
                   [timelist_B, loclist_B, orglist_B, namelist_B], E, fout)
 
 
+original = open('data\\1998.txt', 'w',
+                encoding='utf-8', errors='ignore')
 trainfile = open('data\\train.char.bmes', 'w',
                  encoding='utf-8', errors='ignore')
 testfile = open('data\\test.char.bmes', 'w',
@@ -413,3 +336,7 @@ PKU199801_TRAIN = os.path.join(PKU98, '199801-train.txt')
 PKU199801_TEST = os.path.join(PKU98, '199801-test.txt')
 pre(PKU199801_TRAIN, trainfile)
 pre(PKU199801_TEST, testfile)
+#origin(PKU199801_TEST, original)
+trainfile.close()
+testfile.close()
+# original.close()

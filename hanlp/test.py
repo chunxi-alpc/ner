@@ -1,28 +1,57 @@
 from pyhanlp import *
-"""
-HanLP开启命名实体识别
-
-"""
-
-# 音译人名示例
-CRFnewSegment = HanLP.newSegment("crf")
-term_list = CRFnewSegment.seg("译智社的田丰要说的是这只是一个hanlp命名实体识别的例子")
-print(term_list)
+import re
+PKU98 = '../../data/pku98'
+PKU199801 = os.path.join(PKU98, '199801.txt')
+PKU199801_TRAIN = os.path.join(PKU98, '199801-train.txt')
+PKU199801_TEST = os.path.join(PKU98, '199801-test.txt')
+testfile = open(PKU199801_TEST, 'r', encoding='utf-8', errors='ignore')
 
 
-print("\n========== 命名实体开启与关闭对比试验 ==========\n")
-sentences = [
-    "北川景子参演了林诣彬导演的《速度与激情3》",
+def check(pat, pat2, ww, ff):
+    ans = []
+    anslist = []
+    ww = pat.findall(ww)
+    for line in ff:
+        ans.extend(pat.findall(line))
+        if pat2 != None:
+            ans.extend(pat2.findall(line))
+    for each in ans:
+        anslist.append(re.sub('[a-z\s/\[\]]+', '', each))
 
-]
-# 通过HanLP 进行全局设置,但是部分分词器本身可能不支持某项功能
-# 部分分词器本身对某些命名实体识别效果较好
+    myset = set(ww)
+    ansset = set(anslist)
+    TP_set = myset & ansset
+    FN_set = ansset - myset
+    FP_set = myset - ansset
+    TP = len(TP_set)
+    FN = len(FN_set)
+    FP = len(FP_set)
+    precision = TP/(TP+FP)
+    recall = TP/(TP+FN)
+    print("recall: ", recall)
+    print("precision: ", precision)
+    print("F1: ", 2*precision*recall/(precision+recall))
 
+
+a = open('1998.txt', 'r', encoding='utf-8', errors='ignore')
+a = a.readline()
 viterbiNewSegment = HanLP.newSegment("viterbi")
-CRFnewSegment_new = HanLP.newSegment("crf")
-# segSentence
-# CRFnewSegment_2.seg2sentence(sentences)
-for sentence in sentences:
-    print("crf : ", CRFnewSegment.seg(sentence))
-    print("crf_new : ", CRFnewSegment_new.seg(sentence))
-    print("viterbi : ", viterbiNewSegment.seg(sentence))
+CRFnewSegment = HanLP.newSegment("crf")
+
+a = CRFnewSegment.seg(a)
+#a = viterbiNewSegment.seg(a)
+words = ' '
+for term in a:
+    words += str(term)+' '
+
+org_mulpat = re.compile('\[([^]]*?)]/nt[a-z]*')
+org_pat = re.compile('[\[\s](\S*?)/nt[a-z]*')
+name_pat = re.compile('[\[\s](\S*?)/nr[a-z]*')
+time_mulpat = re.compile('\[([^]]*?)]/t[a-z]*')
+time_pat = re.compile('[\[\s](\S*?)/t[a-z]*')
+loc_mulpat = re.compile('\[([^]]*?)]/ns[a-z]*')
+loc_pat = re.compile('[\[\s](\S*?)/ns[a-z]*')
+ff = testfile.readlines()
+check(name_pat, None, words, ff)
+check(loc_pat, loc_mulpat, words, ff)
+check(org_pat, org_mulpat, words, ff)

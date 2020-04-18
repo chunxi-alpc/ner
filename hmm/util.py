@@ -263,7 +263,7 @@ def pre(fin, fout):
             org_list = []
             loc_list = []
             time_list = []
-            name_list = []
+            namee_list = []
             article = line
             org = org_pat.findall(line)
             for each in org:

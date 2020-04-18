@@ -31,11 +31,10 @@ def train(corpus, model):
     return PerceptronNERecognizer(trainer.train(corpus, model).getModel())
 
 
-def check(pat, pat2, words, testfile):
+def check(pat, pat2, words, ff):
     ans = []
     anslist = []
     words = pat.findall(words)
-    ff = testfile.readlines()
     for line in ff:
         ans.extend(pat.findall(line))
         if pat2 != None:
@@ -80,7 +79,10 @@ def test(recognizer):
     time_pat = re.compile('[\[\s](\S*?)/t[a-z]*')
     loc_mulpat = re.compile('\[([^]]*?)]/ns[a-z]*')
     loc_pat = re.compile('[\[\s](\S*?)/ns[a-z]*')
-    check(name_pat, None, words, testfile)
+    ff = testfile.readlines()
+    check(name_pat, None, words, ff)
+    check(loc_pat, loc_mulpat, words, ff)
+    check(org_pat, org_mulpat, words, ff)
 
 
 if __name__ == '__main__':
